@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class CorsoDAO {
 		// TODO
 	}
 	
-	public Corso getCorso(String nomeCorso) {
+	public List<Corso> getCorso(String nomeCorso) {
 		final String sql= "SELECT * FROM corso WHERE nome=?";
 		
 		try {
@@ -71,20 +72,21 @@ public class CorsoDAO {
 			
 			ResultSet rs=st.executeQuery();
 			
-			Corso c=null;
+			List<Corso> corsi=new LinkedList<>();
 			
-			if(rs.next()) {
+			while(rs.next()) {
 				String codins = rs.getString("codins");
 				int numeroCrediti = rs.getInt("crediti");
 				String nome = rs.getString("nome");
 				int periodoDidattico = rs.getInt("pd");
 				
-				c=new Corso(codins, numeroCrediti, nome, periodoDidattico);
+				Corso c=new Corso(codins, numeroCrediti, nome, periodoDidattico);
+				corsi.add(c);
 			}
 			
 			conn.close();
 			
-			return c;
+			return corsi;
 		} catch (SQLException e) {
 			throw new RuntimeException("Errore DB", e);
 		}
@@ -115,8 +117,7 @@ public class CorsoDAO {
 				
 				Studente s=new Studente(matricola, cognome, nome, cds);
 				studentiIscritti.add(s);
-				System.out.println(s.getMatricola()+" "+s.getNome()+" "+s.getCognome()+" "+s.getCds());
-
+				//System.out.println(s.getMatricola()+" "+s.getNome()+" "+s.getCognome()+" "+s.getCds());
 			}
 			
 			conn.close();
@@ -133,9 +134,48 @@ public class CorsoDAO {
 	 * Data una matricola ed il codice insegnamento, iscrivi lo studente al corso.
 	 */
 	public boolean inscriviStudenteACorso(Studente studente, Corso corso) {
-		// TODO
+		try {
+			Connection conn=ConnectDB.getConnection();
+			Statement statement=conn.createStatement();
+			
+			statement.executeUpdate("INSERT INTO iscrizione "+
+					"VALUES ("+studente.getMatricola()+", '"+corso.getCodins()+"')");
+			
+			return true;
+		} catch (SQLException e) {
+			throw new RuntimeException("Errore DB", e);
+		}
+
 		// ritorna true se l'iscrizione e' avvenuta con successo
-		return false;
+		
+	}
+	
+	public boolean verificaStudenteIscrittoACorso(Studente s, Corso c) {
+		final String sql="SELECT COUNT(*) AS result "
+				+"FROM iscrizione "
+				+"WHERE matricola=? && codins=?";
+		
+		try {
+			Connection conn=ConnectDB.getConnection();
+			PreparedStatement st=conn.prepareStatement(sql);
+			st.setInt(1, s.getMatricola());
+			st.setString(2, c.getCodins());
+			
+			ResultSet rs=st.executeQuery();
+			
+			rs.next();
+			Integer result=rs.getInt("result");
+			System.out.println(result+" "+c.getCodins()+" "+s.getMatricola());
+			
+			if(result==0) {
+				return false;
+			}
+			else
+				return true;
+			
+		} catch (SQLException e) {
+			throw new RuntimeException("Errore DB", e);
+		}
 	}
 
 }
