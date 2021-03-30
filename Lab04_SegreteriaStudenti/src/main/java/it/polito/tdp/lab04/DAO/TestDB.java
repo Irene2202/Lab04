@@ -11,6 +11,10 @@ public class TestDB {
 		CorsoDAO cdao = new CorsoDAO();
 		cdao.getTuttiICorsi();
 		
+		StudenteDAO sdao=new StudenteDAO();
+		sdao.getStudenteDaMAtricola(146102); //->matricola inesistente
+		sdao.getStudenteDaMAtricola(146101); //->matricola esistente
+		
 		
 	}
 
