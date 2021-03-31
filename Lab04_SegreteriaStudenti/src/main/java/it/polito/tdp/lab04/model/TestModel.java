@@ -11,8 +11,6 @@ public class TestModel {
 		/*
 		 * 	Write here your test model
 		 */
-		
-		List<Studente> studenti=model.getStudentiIScrittiAlCorso("Diritto commerciale");
 
 	}
 

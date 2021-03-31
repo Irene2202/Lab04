@@ -29,43 +29,24 @@ public class Model {
 		return this.studenteDao.getStudenteDaMatricola(matricola);
 	}
 	
-	public List<Studente> getStudentiIScrittiAlCorso(String nome){
-		List<Corso> corsi=this.corsoDao.getCorso(nome);
-		List<Studente> studentiIscritti=new ArrayList<>();
-		
-		for(Corso c:corsi) {
-			studentiIscritti.addAll(this.corsoDao.getStudentiIscrittiAlCorso(c));
-		}
-		return studentiIscritti;
+	public List<Studente> getStudentiIScrittiAlCorso(Corso corso){
+		return corsoDao.getStudentiIscrittiAlCorso(corso);
 	}
 	
 	public List<Corso> getCorsoDataMatricola(Studente s){
 		return this.studenteDao.getCorsiDataMatricola(s);
 	}
 	
-	public boolean verificaStudenteIscrittoACorso(Studente s, String nomeCorso) {
-		List<Corso> corsi=this.corsoDao.getCorso(nomeCorso);
-		boolean trovato=false;
-		for(Corso c:corsi) {
-			trovato=this.corsoDao.verificaStudenteIscrittoACorso(s, c);
-			if(trovato)
-				break;
-		}
-		
-		return trovato;
+	public boolean verificaStudenteIscrittoACorso(Studente s, Corso c) {
+		return corsoDao.verificaStudenteIscrittoACorso(s, c);
 	}
 	
-	public boolean isriviACorso(Studente s, String nomeCorso) {
-		if(!this.verificaStudenteIscrittoACorso(s, nomeCorso)) {
-			List<Corso> corsi=this.corsoDao.getCorso(nomeCorso);
-			for(Corso c:corsi) {
-				if(this.corsoDao.inscriviStudenteACorso(s, c))
-					return true;
-			}
-			return false;
-		} else
-			return false;
+	public boolean isriviACorso(Studente s, Corso c) {
+		if(!this.verificaStudenteIscrittoACorso(s, c)) {
+			return this.corsoDao.inscriviStudenteACorso(s, c);
+		}
 		
+		return false;
 	}
 
 }

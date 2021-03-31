@@ -25,8 +25,8 @@ public class FXMLController {
     private URL location;
 
     @FXML
-    private ComboBox<String> boxCorso;
-
+    private ComboBox<Corso> boxCorso;
+    
     @FXML
     private TextField txtMatricola;
 
@@ -41,35 +41,34 @@ public class FXMLController {
 
     @FXML
     void doCercaCorsi(ActionEvent event) {
+    	txtResult.clear();
     	Studente s=this.controlloMatricola();
-    	String nomeCorso=boxCorso.getValue();
+    	Corso corso=boxCorso.getValue();
     	
-    	if(s!=null && (nomeCorso==null || nomeCorso.equals(""))) {
+    	if(s!=null && corso!=null) {    		
+    		if(this.verificaStudenteIscrittoACorso(s, corso))
+    			txtResult.setText("Studente iscritto al corso");
+    		else
+    			txtResult.setText("Studente non iscritto al corso");		
+    	} else if(s!=null) {
     		List<Corso> corsi=this.model.getCorsoDataMatricola(s);
     		if(corsi==null) {
     			txtResult.setText("Lo studente non è iscritto ad nessun corso");
     			return;
     		}
-    	
     		for(Corso c:corsi) {
     			txtResult.appendText(c.toString()+"\n");
     		}
     	}
-    	else {
-    		if(this.verificaStudenteIscrittoACorso(s, nomeCorso))
-    			txtResult.setText("Studente iscritto al corso");
-    		else
-    			txtResult.setText("Studente non iscritto al corso");
-    	}
-    	
 
     }
 
     @FXML
     void doCercaIscrittiCorso(ActionEvent event) {
-    	String nomeCorso=boxCorso.getValue();
+    	txtResult.clear();
+    	Corso corso=boxCorso.getValue();
     	
-    	if(nomeCorso==null) {
+    	if(corso==null) {
     		txtResult.setText("Errore: corso non selezionato");
     		return;
     	}
@@ -77,7 +76,7 @@ public class FXMLController {
     	String matricola=txtMatricola.getText();
     	
     	if(matricola.length()==0) {
-    		List<Studente> studenti=this.model.getStudentiIScrittiAlCorso(nomeCorso);
+    		List<Studente> studenti=this.model.getStudentiIScrittiAlCorso(corso);
     		if(studenti==null) {
     			txtResult.setText("Il corso non ha iscritti");
     			return;
@@ -88,7 +87,7 @@ public class FXMLController {
     	} else {
     		Studente s=this.controlloMatricola();
     		
-    		if(this.verificaStudenteIscrittoACorso(s, nomeCorso))
+    		if(this.verificaStudenteIscrittoACorso(s, corso))
     			txtResult.setText("Studente iscritto al corso");
     		else
     			txtResult.setText("Studente non iscritto al corso");
@@ -98,14 +97,15 @@ public class FXMLController {
 
     @FXML
     void doIscrivi(ActionEvent event) {
-    	String nomeCorso=boxCorso.getValue();
-    	if(nomeCorso==null) {
+    	Corso corso=boxCorso.getValue();
+    	Studente s=this.controlloMatricola();
+    	if(corso==null) {
     		txtResult.setText("Selezionare un corso");
     		return;
     	}
-    	Studente s=this.controlloMatricola();
+    	
     	if(s!=null) {
-    		boolean iscritto=this.model.isriviACorso(s, nomeCorso);
+    		boolean iscritto=this.model.isriviACorso(s, corso);
     		
     		if(iscritto) 
     			txtResult.setText("Studente iscritto con successo");
@@ -145,30 +145,35 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model=model;
-    	
-    	for(Corso c:this.model.getTuttiICorsi())
-    		boxCorso.getItems().add(c.getNome());
-    	boxCorso.getItems().add("");
+    	Corso c=null;
+    	boxCorso.getItems().add(c);
+    	boxCorso.getItems().addAll(model.getTuttiICorsi());
     }
     
     private Studente controlloMatricola() {
+    	String matricolaS=txtMatricola.getText();
+    	Studente s=null;
+    	if(matricolaS.length()==0) {
+    		txtResult.setText("Matricola non inserita");
+    		return s;
+    	}
     	Integer matricola;
     	try {
-    		matricola=Integer.parseInt(txtMatricola.getText());
+    		matricola=Integer.parseInt(matricolaS);
     	} catch (NumberFormatException ne) {
     		txtResult.setText("Matricola inserita non valida");
     		return null;
     	}
-    	Studente s=this.model.getStudenteDaMatricola(matricola);
+    	s=this.model.getStudenteDaMatricola(matricola);
     	if(s==null) {
-    		txtResult.setText("Studente non trovato");
+    		txtResult.setText("La matricola inserita non corrisponde ad alcuno studente");
     		return null;
     	}
     	
     	return s;
     }
     
-    private boolean verificaStudenteIscrittoACorso(Studente s, String nomeCorso) {
-    	return this.model.verificaStudenteIscrittoACorso(s, nomeCorso);
+    private boolean verificaStudenteIscrittoACorso(Studente s, Corso c) {
+    	return this.model.verificaStudenteIscrittoACorso(s, c);
     }
 }

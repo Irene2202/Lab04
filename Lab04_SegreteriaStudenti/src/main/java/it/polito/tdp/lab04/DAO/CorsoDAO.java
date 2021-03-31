@@ -61,36 +61,6 @@ public class CorsoDAO {
 	public void getCorso(Corso corso) {
 		// TODO
 	}
-	
-	public List<Corso> getCorso(String nomeCorso) {
-		final String sql= "SELECT * FROM corso WHERE nome=?";
-		
-		try {
-			Connection conn=ConnectDB.getConnection();
-			PreparedStatement st=conn.prepareStatement(sql);
-			st.setString(1, nomeCorso);
-			
-			ResultSet rs=st.executeQuery();
-			
-			List<Corso> corsi=new LinkedList<>();
-			
-			while(rs.next()) {
-				String codins = rs.getString("codins");
-				int numeroCrediti = rs.getInt("crediti");
-				String nome = rs.getString("nome");
-				int periodoDidattico = rs.getInt("pd");
-				
-				Corso c=new Corso(codins, numeroCrediti, nome, periodoDidattico);
-				corsi.add(c);
-			}
-			
-			conn.close();
-			
-			return corsi;
-		} catch (SQLException e) {
-			throw new RuntimeException("Errore DB", e);
-		}
-	}
 
 	/*
 	 * Ottengo tutti gli studenti iscritti al Corso
@@ -138,22 +108,21 @@ public class CorsoDAO {
 			Connection conn=ConnectDB.getConnection();
 			Statement statement=conn.createStatement();
 			
-			statement.executeUpdate("INSERT INTO iscrizione "+
-					"VALUES ("+studente.getMatricola()+", '"+corso.getCodins()+"')");
+			statement.executeUpdate("INSERT INTO iscrizione VALUES ("+studente.getMatricola()+", '"+corso.getCodins()+"')");
 			
-			return true;
 		} catch (SQLException e) {
 			throw new RuntimeException("Errore DB", e);
 		}
 
 		// ritorna true se l'iscrizione e' avvenuta con successo
-		
+		return true;
 	}
 	
 	public boolean verificaStudenteIscrittoACorso(Studente s, Corso c) {
 		final String sql="SELECT COUNT(*) AS result "
 				+"FROM iscrizione "
 				+"WHERE matricola=? && codins=?";
+		Integer result;
 		
 		try {
 			Connection conn=ConnectDB.getConnection();
@@ -164,18 +133,19 @@ public class CorsoDAO {
 			ResultSet rs=st.executeQuery();
 			
 			rs.next();
-			Integer result=rs.getInt("result");
-			System.out.println(result+" "+c.getCodins()+" "+s.getMatricola());
+			result=rs.getInt("result");
+			//System.out.println(result+" "+c.getCodins()+" "+s.getMatricola());
 			
-			if(result==0) {
-				return false;
-			}
-			else
-				return true;
-			
+			conn.close();
 		} catch (SQLException e) {
 			throw new RuntimeException("Errore DB", e);
 		}
+		
+		if(result==0) {
+			return false;
+		}
+		else
+			return true;
 	}
 
 }

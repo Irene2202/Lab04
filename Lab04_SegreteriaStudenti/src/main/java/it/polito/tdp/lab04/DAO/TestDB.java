@@ -11,18 +11,15 @@ public class TestDB {
 		/*
 		 * 	This is a main to check the DB connection
 		 */
-		
+		/*
 		CorsoDAO cdao = new CorsoDAO();
 		cdao.getTuttiICorsi();
 		
 		StudenteDAO sdao=new StudenteDAO();
 		sdao.getStudenteDaMatricola(146102); //->matricola inesistente
 		sdao.getStudenteDaMatricola(146101); //->matricola esistente
+		*/
 		
-		List<Corso> corsi=cdao.getCorso("Economia Aziendale");
-		for(Corso c:corsi) {
-			System.out.println(c.getCodins()+" "+c.getNome());
-		}
 	}
 
 }
