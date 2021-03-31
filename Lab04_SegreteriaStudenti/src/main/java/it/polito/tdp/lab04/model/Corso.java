@@ -74,9 +74,6 @@ public class Corso {
 		@Override
 		public String toString() {
 			return nome;
-			//return codins + " " + crediti + " " + nome + " " + pd;
 		}
-		
-		
-
+	
 }

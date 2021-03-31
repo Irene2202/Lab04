@@ -56,9 +56,14 @@ public class FXMLController {
     			txtResult.setText("Lo studente non è iscritto ad nessun corso");
     			return;
     		}
+    		StringBuilder sb=new StringBuilder();
     		for(Corso c:corsi) {
-    			txtResult.appendText(c.toString()+"\n");
+    			sb.append(String.format("%-8s ", c.getCodins()));
+        		sb.append(String.format("%-4d ", c.getCrediti()));
+        		sb.append(String.format("%-50s ", c.getNome()));
+        		sb.append(String.format("%-4d\n", c.getPd()));
     		}
+    		txtResult.appendText(sb.toString());
     	}
 
     }
@@ -81,9 +86,14 @@ public class FXMLController {
     			txtResult.setText("Il corso non ha iscritti");
     			return;
     		}
-    		for(Studente s:studenti)
-    			txtResult.appendText(s.toString()+"\n");
-    		
+    		StringBuilder sb=new StringBuilder();
+    		for(Studente s:studenti) {
+        			sb.append(String.format("%-8d ",s.getMatricola()));
+            		sb.append(String.format("%-20s ", s.getNome()));
+            		sb.append(String.format("%-20s ", s.getCognome()));
+            		sb.append(String.format("%-6s\n", s.getCds()));
+        		}
+        		txtResult.appendText(sb.toString());
     	} else {
     		Studente s=this.controlloMatricola();
     		
@@ -125,11 +135,11 @@ public class FXMLController {
 
     @FXML
     void doStudenteDaMatricola(ActionEvent event) {
+    	txtResult.clear();
     	Studente s=this.controlloMatricola();
     	if(s!=null) {
     		txtNome.setText(s.getNome());
     		txtCognome.setText(s.getCognome());
-    		txtResult.clear();
     	}
     }
 
@@ -148,6 +158,7 @@ public class FXMLController {
     	Corso c=null;
     	boxCorso.getItems().add(c);
     	boxCorso.getItems().addAll(model.getTuttiICorsi());
+    	txtResult.setStyle("-fx-font-family: monospace");
     }
     
     private Studente controlloMatricola() {
